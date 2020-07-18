@@ -1,3 +1,8 @@
+# Architecture Image
+
+![alt text](https://github.com/ankushvijay/Solutions/blob/EKS_solutions/eks-architecture.png)
+
+
 # Module: Demo Platform
 
 Creates an EKS Digital AWS hosting platform.
