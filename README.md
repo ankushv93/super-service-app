@@ -18,15 +18,29 @@ Creates an EKS Digital AWS hosting platform.
 * Helm2 version 
 
 ## Requirements
+* Git 
 * Terraform Version : ">= 0.12.10"
 * AWS provider Version : ">= 2.38.0"
 * http provider
 
 ## Usage
+
+Step1 ) git clone https://github.com/ankushvijay/Solutions.git
+
+Step2 ) terraform init (To initialise plugins and backend)
+
+Step3 ) terraform plan
+
+Step4 ) terraform apply  
+
+Calling Using Module:
+
 module "platform" {
   source = "https://github.com/ankushvijay/Solutions.git"
-  ...
+  ... 
 }
+
+
 
 ## Parameters
 ### Required
