@@ -24,7 +24,7 @@ Creates an EKS Digital AWS hosting platform.
 
 ## Usage
 module "platform" {
-  source = "ssh://"
+  source = "https://github.com/ankushvijay/Solutions.git"
   ...
 }
 
