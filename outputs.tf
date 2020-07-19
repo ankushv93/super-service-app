@@ -59,17 +59,17 @@ output "kubeconfig" {
 }
 
 output "vpc_id" {
-  value       = aws_vpc.demo.id
+  value       = module.networking.vpc_id
   description = "Present VPC id info"
 }
 
 output "vpc_cidr" {
-  value       = aws_vpc.demo.cidr_block
+  value       = module.networking.vpc_cidr
   description = "Present cidr blocks"
 }
 
 output "vpc_route_table_ids" {
-  value       = [concat(aws_route_table.demo.*.id, aws_route_table.demo_private.*.id)]
+  value       = module.networking.vpc_route_table_ids
   description = "Present route tables ids"
 }
 
@@ -79,11 +79,11 @@ output "cluster_security_group_id" {
 }
 
 output "private_subnet_ids" {
-  value       = [aws_subnet.demo_private.*.id]
+  value       = module.networking.private_subnet_ids
   description = "Present private subnet ids"
 }
 
 output "public_subnet_ids" {
-  value       = [aws_subnet.demo.*.id]
+  value       = module.networking.public_subnet_ids
   description = "Present public subnet ids"
 }

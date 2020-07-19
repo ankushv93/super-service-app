@@ -11,6 +11,10 @@ Creates an EKS Digital AWS hosting platform.
 * Deployment using helm charts , kubectl CLI . Spinnaker/Jenkins.
 * Monitoring can be enabled by deploying metrics server , helm charts of prometheus and grafana in cluster.
 
+## Modules
+
+* networking - it is responsible for creation of networking stack (VPC,Subnets,route tables, nat gateway , internet gw)
+
 ## Pre Requisites
 
 * kubectl 

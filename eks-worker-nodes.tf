@@ -42,7 +42,7 @@ resource "aws_eks_node_group" "demo" {
   cluster_name    = aws_eks_cluster.demo.name
   node_group_name = "demo_public"
   node_role_arn   = aws_iam_role.demo-node.arn
-  subnet_ids      = aws_subnet.demo[*].id
+  subnet_ids      = flatten([module.networking.public_subnet_ids])
 
   scaling_config {
     desired_size = 1
@@ -61,7 +61,7 @@ resource "aws_eks_node_group" "demo_private" {
   cluster_name    = aws_eks_cluster.demo.name
   node_group_name = "demo_private"
   node_role_arn   = aws_iam_role.demo-node.arn
-  subnet_ids      = aws_subnet.demo_private[*].id
+  subnet_ids      = flatten([module.networking.private_subnet_ids])
 
   scaling_config {
     desired_size = 1

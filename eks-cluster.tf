@@ -37,7 +37,7 @@ resource "aws_iam_role_policy_attachment" "demo-cluster-AmazonEKSServicePolicy" 
 resource "aws_security_group" "demo-cluster" {
   name        = join("-",list(var.environment_name,"security"))
   description = "Cluster communication with worker nodes"
-  vpc_id      = aws_vpc.demo.id
+  vpc_id      = module.networking.vpc_id
 
   egress {
     from_port   = 0
@@ -77,7 +77,7 @@ resource "aws_eks_cluster" "demo" {
 
   vpc_config {
     security_group_ids = [aws_security_group.demo-cluster.id]
-    subnet_ids         = aws_subnet.demo[*].id
+    subnet_ids         =  flatten([module.networking.public_subnet_ids])
   }
 
   depends_on = [
