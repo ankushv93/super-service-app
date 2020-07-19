@@ -31,7 +31,7 @@ Creates an EKS Digital AWS hosting platform.
 
 Step1 ) git clone https://github.com/ankushvijay/Solutions.git
 
-Step2 ) terraform init (To initialise plugins and backend)
+Step2 ) terraform init (To initialise plugins, modules and backend)
 
 Step3 ) terraform plan
 
