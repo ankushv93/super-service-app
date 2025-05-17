@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superservice-deployment
+  labels:
+    app: superservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: superservice
+  template:
+    metadata:
+      labels:
+        app: superservice
+    spec:
+      containers:
+        - name: superservice
+          image: ankushv93/superservice:latest
+          ports:
+            - containerPort: 80
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 3000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+

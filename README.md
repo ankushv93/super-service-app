@@ -1,88 +1,134 @@
 # Architecture Image
 
-![alt text](https://github.com/ankushvijay/Solutions/blob/EKS_solutions/eks-architecture.png)
+![alt text](https://github.com/ankushv93/super-service-app/blob/master/eks-architecture.png)
 
 
-# Module: Demo Platform
+# Super Service .NET Application - DevOps Interview Task
 
-Creates an EKS Digital AWS hosting platform.
+This project demonstrates how to deploy a new .NET Core Web API application using a Docker container and Kubernetes on a local KIND cluster.
 
-* Infrastructure as Code using terraform (VPC,Subnets,route tables, nat gateway , internet gw , EKS cluster & node pool , security groups/rules)
-* Deployment using helm charts , kubectl CLI . Spinnaker/Jenkins.
-* Monitoring can be enabled by deploying metrics server , helm charts of prometheus and grafana in cluster.
+---
 
-## Modules
+## Task Requirements
 
-* networking - it is responsible for creation of networking stack (VPC,Subnets,route tables, nat gateway , internet gw)
+The primary goals were:
 
-## Pre Requisites
+1. **Run automated tests**  
+2. **Package the application as a Docker image**  
+3. **Deploy and run the image locally or in a public cloud**
 
-* kubectl 
-* AWS IAM Authenticator
-* Helm2 version 
+Additional improvements such as security hardening and deployment automation were encouraged.
 
-## Requirements
-* Git 
-* Terraform Version : ">= 0.12.10"
-* AWS provider Version : ">= 2.38.0"
-* http provider
+---
 
-## Usage
+## Solution Overview
 
-Step1 ) git clone https://github.com/ankushvijay/Solutions.git
+### 1. Automated Testing
 
-Step2 ) terraform init (To initialise plugins, modules and backend)
+- Unit tests are included under the [`./test`] folder, at the same level as the application source [`./src`].
+- The Docker build process runs `dotnet test` before packaging to ensure code quality.
+- The PowerShell deployment script `Deploy.ps` runs tests before building the Docker image, stopping on failure.
 
-Step3 ) terraform plan
+### 2. Docker Image Packaging
 
-Step4 ) terraform apply  
+- Multi-stage Dockerfile for efficient builds:
+  - Uses `mcr.microsoft.com/dotnet/sdk` for build and test stage.
+  - Uses `mcr.microsoft.com/dotnet/aspnet` for the runtime image.
+- Builds a lightweight, production-ready image tagged with the repository and tag.
 
-Calling Using Module:
+### 3. Deployment
 
-module "platform" {
-  source = "https://github.com/ankushvijay/Solutions.git"
-  ... 
-}
+- Kubernetes manifests (Deployment, Service, HPA) are located in the [`./deployment_yaml`] folder.
+- Deployment can be done via:
+  - **Terraform** (existing infrastructure-as-code solution),
+  - **PowerShell script** `Deploy.ps` for local KIND cluster deployment, or
+  - **Helm charts**, which can be added as an alternative method for templated, reusable deployments.
+- The PowerShell script handles image build, push to DockerHub, Kubernetes manifest apply, and port forwarding for easy local testing.
+  
+---
 
+## Security Improvements
 
+- Kubernetes Deployment manifest includes a **security context**:
+  - Runs containers as non-root user (`runAsUser: 1000`).
+  - Drops all Linux capabilities.
+  - Defines CPU and memory resource requests/limits for cluster stability.
+  - Enables HTTPS redirection in the .NET application.
+- These improve security posture and resource efficiency.
 
-## Parameters
-### Required
-* vpc_cidr (str): Desired CIDR of the VPC
-* aws_region (str): Region to create infrastructure
-* environment_name (str): Name of the environment ( NON-PROD , STG , PROD )
-* no_of_public_subnet (number): Number of public subnets
-* no_of_private_subnet (number): Number of private subnets
-* cluster-name (str): Name of the Cluster
-* external_ip_addr_cidrs (list): Ips to be whitelisted on Nginx Ingress 
+---
 
+## Pre-Requisites
 
-## Optional
+- [Docker Desktop](https://docs.docker.com/desktop/mac/install/) (for building and pushing images)
+- [Kubernetes Kind](https://kind.sigs.k8s.io/) (for local Kubernetes cluster)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [PowerShell 7+](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-macos)
+- Terraform v1.0.9+ (if using the Terraform deployment path)
+- Helm 3.x (for optional metrics-server or ingress controller deployments)
 
-## Outputs
-* vpc_id (str): The platform VPC ID
-* vpc_cidr (str): The platform VPC CIDR block
-* public_subnet_ids (list): The public subnet IDs
-* private_subnet_ids (list): The private subnet IDs
-* cluster_security_group_id (str): Cluster Master security group for accessing from workstations
-* vpc_route_table_ids (list): Cluster route tables ids
-* config_map_aws_auth (str): Configmap for authentication of worker nodes
-* kubeconfig (str): Kubeconfig file to connect via kubectl to EKS cluster
+---
 
-## Deployment of application
+## Deploy Instruction
 
-1) Approach using terraform
+### Option 1: Using PowerShell Deployment Script (Local KIND Cluster)
 
-* First we created Dockerfile and build an image 
-* Pushed image to registry
-* Deployed Nginx-Ingress using helm charts.
-* Deployed application yaml  ( deploy , service and ingress rule ) in app namespace
+git clone https://github.com/ankushv93/super-service-app.git
 
-2) This can be done using spinnaker/Jenkins CI/CD tool as well.  
+```powershell
+pwsh deploy.ps
+```
 
+### This will:
 
-## Application url can be registered for any domain and can be accessed
+- Run unit tests  
+- Build and tag the Docker image  
+- Push image to DockerHub  
+- Deploy Kubernetes manifests to KIND cluster  
+- Port-forward service to `localhost:8080` for local testing  
 
-* This can be tested by accessing url of ELB/ALB
+Test the API by opening [http://localhost:8080/time](http://localhost:8080/time) in your browser or via curl.
 
-NOTE: This full configuration utilizes the [Terraform http provider](https://www.terraform.io/docs/providers/http/index.html) to call out to icanhazip.com to determine your local workstation external IP for easily configuring EC2 Security Group access to the Kubernetes servers. Feel free to replace this as necessary.
+---
+
+### Option 2: Using Terraform (Cloud or Local Deployment)
+
+Terraform handles infrastructure provisioning and app deployment using existing modules:
+
+```bash
+terraform fmt
+terraform init
+terraform validate
+terraform plan
+terraform apply
+```
+
+### Terraform deploys:
+
+- Networking stack (VPC, subnets, etc.)  
+- EKS Cluster with node pools  
+- Nginx ingress controller using Helm 3  
+- Application deployment manifests  
+
+---
+
+### Additional Notes
+
+- The solution embraces **Infrastructure as Code** principles with Terraform for scalability.  
+- The PowerShell script offers a simple local deployment alternative.  
+- Security is improved via container runtime restrictions and resource management.  
+- CI/CD can be integrated easily by extending `Deploy.ps` into Jenkins or GitHub Actions.  
+- Metrics server and HPA included to demonstrate scaling.
+
+### Security Considerations:
+
+- **RBAC (Role-Based Access Control):** Ensure proper access control in the Kubernetes cluster.
+- **SSL/TLS Encryption:** Use **Cert-Manager** to automate SSL certificate issuance.
+- **Network Policies:** Define traffic rules between pods to isolate services and improve security.
+
+## Monitoring Enhancements (Future Work)
+
+- Monitoring can be enhanced by deploying Prometheus and Grafana via Helm charts.
+- Adding Metrics Server enables Horizontal Pod Autoscaler (HPA) functionality.
+- Integration with Datadog can be considered for centralized observability.
+- These improvements would help track application health, resource usage, and scaling metrics more effectively.

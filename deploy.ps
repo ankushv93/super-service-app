@@ -1,0 +1,52 @@
+# Change to script directory for relative paths safety
+Write-Host "=============================="
+Write-Host "Setting working directory to ./super-service"
+Write-Host "=============================="
+Set-Location -Path ./super-service
+
+# Variables
+$imageName = "ankushv93/superservice"
+$imageTag = "latest"
+$fullImageName = "${imageName}:${imageTag}"
+$k8sYamlDir = "deployment_yaml"   # folder where your deployment/service YAML files exist
+
+# Step 1: Build Docker image (will run unit tests as part of Dockerfile)
+Write-Host ""
+Write-Host "=============================="
+Write-Host "Step 1: Building Docker image $fullImageName..."
+Write-Host "=============================="
+docker build -t $fullImageName .
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Docker build failed. Exiting."
+    exit 1
+}
+
+# Step 2: Push Docker image to registry
+Write-Host ""
+Write-Host "=============================="
+Write-Host "Step 2: Pushing image $fullImageName to Docker registry similar to pushing in AWS ECR or Azure container registry..."
+Write-Host "=============================="
+docker push $fullImageName
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Docker push failed. Exiting."
+    exit 1
+}
+
+# Step 3: Deploy to KIND cluster
+Write-Host ""
+Write-Host "=============================="
+Write-Host "Step 3: Applying Kubernetes manifests from $k8sYamlDir..."
+Write-Host "=============================="
+kubectl apply -f $k8sYamlDir
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "kubectl apply failed. Exiting."
+    exit 1
+}
+
+Write-Host ""
+Write-Host "=============================="
+Write-Host "Deployment complete! 🎉"
+Write-Host "=============================="

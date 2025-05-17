@@ -1,0 +1,7 @@
+/Users/mac/condenast/condenast/Solutions/super-service/out/SuperService
+/Users/mac/condenast/condenast/Solutions/super-service/out/appsettings.Development.json
+/Users/mac/condenast/condenast/Solutions/super-service/out/appsettings.json
+/Users/mac/condenast/condenast/Solutions/super-service/out/SuperService.dll
+/Users/mac/condenast/condenast/Solutions/super-service/out/SuperService.deps.json
+/Users/mac/condenast/condenast/Solutions/super-service/out/SuperService.runtimeconfig.json
+/Users/mac/condenast/condenast/Solutions/super-service/out/SuperService.pdb
